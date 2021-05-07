@@ -1,4 +1,6 @@
-﻿namespace Chesham.Forza.ForzaHorizon4.Data
+﻿using System;
+
+namespace Chesham.Forza.ForzaHorizon4.Data
 {
     public class ForzaData
     {
@@ -7,5 +9,7 @@
         public ForzaDataSled Sled { get; set; }
 
         public ForzaDataCarDash CarDash { get; set; }
+
+        public ReadOnlyMemory<byte> Remain { get; set; }
     }
 }

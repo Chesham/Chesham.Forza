@@ -29,6 +29,7 @@ namespace Chesham.Forza.ForzaHorizon4.Data
                 return default;
             var sledData = new ForzaDataSled();
             var carDash = default(ForzaDataCarDash);
+            var remain = default(ReadOnlyMemory<byte>);
             using (var ms = new MemoryStream(buffer))
             using (var reader = new BinaryReader(ms))
             {
@@ -42,6 +43,7 @@ namespace Chesham.Forza.ForzaHorizon4.Data
                     case ForzaDataVersion.HorizonCarDash:
                         break;
                 }
+                remain = reader.ReadBytes((int)(reader.BaseStream.Length - reader.BaseStream.Position));
             }
             void Read(BinaryReader reader, object dataObject)
             {
@@ -67,6 +69,7 @@ namespace Chesham.Forza.ForzaHorizon4.Data
                 Version = version,
                 Sled = sledData,
                 CarDash = carDash,
+                Remain = remain,
             };
             return forzaData;
         }
