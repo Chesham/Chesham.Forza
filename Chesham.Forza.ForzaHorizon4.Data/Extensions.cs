@@ -1,91 +1,81 @@
-﻿using System;
+﻿using Chesham.Forza.ForzaHorizon4.Data.Attribute;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 
 namespace Chesham.Forza.ForzaHorizon4.Data
 {
     internal static class Extensions
     {
-        public static ForzaData ParseForzaData(this byte[] buffer)
+        public static ForzaData ParseToForzaData(this byte[] buffer)
         {
-            ForzaDataVersion version;
-            switch (buffer.Length)
+            return DataTypes
+                .FirstOrDefault(i => i.DataLength == buffer.Length)?
+                .Parse(buffer);
+        }
+
+        public static ForzaData Parse(this ForzaData template, byte[] buffer)
+        {
+            var dataType = template.GetType();
+            if (ForzaDataPropertyInfos.TryGetValue(dataType, out var propertyInfos))
             {
-                case ForzaDataTraits.SledPacketSize:
-                    version = ForzaDataVersion.Sled;
-                    break;
-                case ForzaDataTraits.CarDashPacketSize:
-                    version = ForzaDataVersion.CarDash;
-                    break;
-                case ForzaDataTraits.HorizonCarDashPacketSize:
-                    version = ForzaDataVersion.HorizonCarDash;
-                    break;
-                default:
-                    version = ForzaDataVersion.Unknown;
-                    break;
-            }
-            if (version == ForzaDataVersion.Unknown)
-                return default;
-            var sledData = new ForzaDataSled();
-            var carDash = default(ForzaDataCarDash);
-            var horizonCarDash = default(ForzaDataHorizonCarDash);
-            var remain = default(ReadOnlyMemory<byte>);
-            using (var ms = new MemoryStream(buffer))
-            using (var reader = new BinaryReader(ms))
-            {
-                switch (version)
+                var target = Activator.CreateInstance(dataType) as ForzaData;
+                using (var stream = new MemoryStream(buffer))
+                using (var reader = new BinaryReader(stream))
                 {
-                    case ForzaDataVersion.Sled:
-                        Read(reader, sledData);
-                        break;
-                    case ForzaDataVersion.CarDash:
-                        carDash = new ForzaDataCarDash();
-                        Read(reader, carDash);
-                        break;
-                    case ForzaDataVersion.HorizonCarDash:
-                        horizonCarDash = new ForzaDataHorizonCarDash();
-                        Read(reader, horizonCarDash);
-                        break;
-                }
-                remain = reader.ReadBytes((int)(reader.BaseStream.Length - reader.BaseStream.Position));
-            }
-            void Read(BinaryReader reader, object dataObject)
-            {
-                var properties = dataObject.GetType().GetProperties();
-                var readActions = new Dictionary<Type, Func<object>>
-                {
-                    { typeof(int), () => reader.ReadInt32() },
-                    { typeof(uint), () => reader.ReadUInt32() },
-                    { typeof(float), () => reader.ReadSingle() },
-                    { typeof(ushort), () => reader.ReadUInt16() },
-                    { typeof(byte), () => reader.ReadByte() },
-                    { typeof(sbyte), () => reader.ReadSByte() },
-                    { typeof(ForzaDataHorizonPlaceholder), () => new ForzaDataHorizonPlaceholder{ Values = reader.ReadBytes(ForzaDataHorizonPlaceholder.Length) } },
-                };
-                foreach (var property in properties)
-                {
-                    try
+                    foreach (var propertyInfo in propertyInfos)
                     {
-                        var propertyType = property.PropertyType;
-                        var dataReader = readActions.First(k => k.Key == propertyType).Value;
-                        property.SetValue(dataObject, dataReader());
-                    }
-                    catch (Exception ex)
-                    {
-                        throw;
+                        var propertyType = propertyInfo.PropertyType;
+                        var placeholder = (propertyInfo.GetCustomAttributes(typeof(PlaceholderAttribute), false).FirstOrDefault() as PlaceholderAttribute)?.Size;
+                        if (placeholder.HasValue)
+                        {
+                            reader.BaseStream.Seek(placeholder.Value, SeekOrigin.Current);
+                        }
+                        else if (readActions.TryGetValue(propertyType, out var readAction))
+                        {
+                            propertyInfo.SetValue(target, readAction(reader));
+                        }
                     }
                 }
+                return target;
             }
-            var forzaData = new ForzaData
+            return null;
+        }
+
+        private static ForzaData[] DataTypes { get; } = Assembly
+            .GetExecutingAssembly()
+            .GetTypes()
+            .Where(i => i.IsSubclassOf(typeof(ForzaData)))
+            .Select(i => Activator.CreateInstance(i) as ForzaData)
+            .ToArray();
+
+        private static Dictionary<Type, PropertyInfo[]> ForzaDataPropertyInfos { get; } = DataTypes.ToDictionary(i => i.GetType(), GetInheritedProperties);
+
+        private static Dictionary<Type, Func<BinaryReader, object>> readActions = new Dictionary<Type, Func<BinaryReader, object>>
+        {
+            { typeof(int), reader => reader.ReadInt32() },
+            { typeof(uint), reader => reader.ReadUInt32() },
+            { typeof(float), reader => reader.ReadSingle() },
+            { typeof(ushort), reader => reader.ReadUInt16() },
+            { typeof(byte), reader => reader.ReadByte() },
+            { typeof(sbyte), reader => reader.ReadSByte() },
+        };
+
+        private static PropertyInfo[] GetInheritedProperties(this ForzaData target)
+        {
+            var properties = new List<PropertyInfo[]>();
+            var type = target.GetType();
+            while (type != typeof(ForzaData))
             {
-                Version = version,
-                Sled = sledData,
-                CarDash = carDash,
-                HorizonCarDash = horizonCarDash,
-                Remain = remain,
-            };
-            return forzaData;
+                properties.Add(type.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                type = type.BaseType;
+            }
+            properties.Reverse();
+            return properties
+                .SelectMany(i => i)
+                .ToArray();
         }
     }
 }

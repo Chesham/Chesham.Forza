@@ -1,8 +1,8 @@
 ﻿using Serilog;
 using System;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 
 namespace Chesham.Forza.ForzaHorizon4.Data
@@ -15,13 +15,14 @@ namespace Chesham.Forza.ForzaHorizon4.Data
                 throw new InvalidOperationException();
             client = new UdpClient(ipEndPoint);
             logger.Information("Listening on {EndPoint}", ipEndPoint);
-            observable = System.Reactive.Linq.Observable
+            observable = Observable
                 .FromAsync(async () =>
                 {
                     var result = await client.ReceiveAsync();
-                    var forzaData = result.Buffer.ParseForzaData();
-                    return forzaData;
+                    var buffer = result.Buffer;
+                    return buffer.ParseToForzaData();
                 })
+                .Where(data => data != null)
                 .Repeat();
         }
 

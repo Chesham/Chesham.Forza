@@ -1,16 +1,28 @@
-﻿namespace Chesham.Forza.ForzaHorizon4.Data
+﻿using Chesham.Forza.ForzaHorizon4.Data.Attribute;
+
+namespace Chesham.Forza.ForzaHorizon4.Data
 {
-    public class ForzaDataCarDash
+    public class ForzaDataHorizon4CarDash : ForzaDataSled
     {
-        // Position (meters)
+        [Placeholder(12)]
+        public object UnknownData1 { get; set; }
+
         public float PositionX { get; set; }
+
         public float PositionY { get; set; }
+
         public float PositionZ { get; set; }
-        // Meters per second
+        /// <summary>
+        /// meters per second
+        /// </summary>
         public float Speed { get; set; }
-        // Watts
+        /// <summary>
+        ///  watts
+        /// </summary>
         public float Power { get; set; }
-        // Newton meter
+        /// <summary>
+        /// newton meter
+        /// </summary>
         public float Torque { get; set; }
 
         public float TireTempFrontLeft { get; set; }
@@ -40,6 +52,7 @@
         public byte RacePosition { get; set; }
 
         public byte Accel { get; set; }
+
         public byte Brake { get; set; }
 
         public byte Clutch { get; set; }
@@ -53,5 +66,8 @@
         public sbyte NormalizedDrivingLine { get; set; }
 
         public sbyte NormalizedAIBrakeDifference { get; set; }
+
+        [Placeholder(1)]
+        public object UnknownData2 { get; set; }
     }
 }

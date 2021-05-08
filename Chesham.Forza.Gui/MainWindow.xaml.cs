@@ -33,24 +33,22 @@ namespace Chesham.Forza.Gui
             dataReader.Listen(ipEndPoint);
             dataReader
                 .observable
-                .SubscribeOn(TaskPoolScheduler.Default)
                 .Sample(TimeSpan.FromMilliseconds(10))
-                .Where(i => i.HorizonCarDash.IsRaceOn == 1)
+                .Cast<ForzaDataHorizon4CarDash>()
+                .Where(i => i?.IsRaceOn == 1)
                 .Subscribe(data =>
                 {
                     var m = mainViewModel;
-                    var sled = data.HorizonCarDash;
-                    m.engineMaxRpm = sled.EngineMaxRpm;
-                    m.engineCurrentRpm = sled.CurrentEngineRpm;
-                    //var gear = (int)data.Remain.ToArray().ElementAt(87);
-                    var gear = sled.Gear;
+                    m.engineMaxRpm = data.EngineMaxRpm;
+                    m.engineCurrentRpm = data.CurrentEngineRpm;
+                    var gear = data.Gear;
                     m.gear = gear == 0 ? "R" : $"{gear}";
                     var carClasses = new[] { "D", "C", "B", "A", "S1", "S2", "X" };
-                    m.carClass = carClasses.ElementAtOrDefault(sled.CarClass);
-                    m.performanceIndex = $"({sled.CarPerformanceIndex})";
+                    m.carClass = carClasses.ElementAtOrDefault((int)data.CarClass);
+                    m.performanceIndex = $"({data.CarPerformanceIndex})";
                     var drivetrain = new[] { "FWD", "RWD", "AWD" };
-                    m.drivetrain = drivetrain.ElementAtOrDefault(sled.DrivetrainType);
-                    m.cylinders = sled.NumCylinders;
+                    m.drivetrain = drivetrain.ElementAtOrDefault((int)data.DrivetrainType);
+                    m.cylinders = data.NumCylinders;
                 });
             DataContext = mainViewModel;
         }

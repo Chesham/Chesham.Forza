@@ -19,17 +19,17 @@ namespace Chesham.Forza.Cli
             using (dataReader.observable
                 .SubscribeOn(TaskPoolScheduler.Default)
                 .Sample(TimeSpan.FromMilliseconds(500))
-                .Where(i => i.Sled.IsRaceOn == 1)
-                .Subscribe(Observer.Create<ForzaData>(data =>
+                .Cast<ForzaDataHorizon4CarDash>()
+                .Where(i => i?.IsRaceOn == 1)
+                .Subscribe(Observer.Create<ForzaDataHorizon4CarDash>(data =>
                 {
-                    var sled = data.Sled;
                     var values = new
                     {
-                        PI = sled.CarPerformanceIndex,
-                        Engine = $"{sled.CurrentEngineRpm} / {sled.EngineMaxRpm}",
-                        SuspensionTravel = new[] { sled.SuspensionTravelMetersFrontLeft, sled.SuspensionTravelMetersFrontRight, sled.SuspensionTravelMetersRearRight, sled.SuspensionTravelMetersRearLeft },
-                        TireSlipRatio = new[] { sled.TireSlipRatioFrontLeft, sled.TireSlipRatioFrontRight, sled.TireSlipRatioRearRight, sled.TireSlipRatioRearLeft },
-                        TireSlipAngle = new[] { sled.TireSlipAngleFrontLeft, sled.TireSlipAngleFrontRight, sled.TireSlipAngleRearRight, sled.TireSlipAngleRearLeft },
+                        PI = data.CarPerformanceIndex,
+                        Engine = $"{data.CurrentEngineRpm} / {data.EngineMaxRpm}",
+                        SuspensionTravel = new[] { data.SuspensionTravelMetersFrontLeft, data.SuspensionTravelMetersFrontRight, data.SuspensionTravelMetersRearRight, data.SuspensionTravelMetersRearLeft },
+                        TireSlipRatio = new[] { data.TireSlipRatioFrontLeft, data.TireSlipRatioFrontRight, data.TireSlipRatioRearRight, data.TireSlipRatioRearLeft },
+                        TireSlipAngle = new[] { data.TireSlipAngleFrontLeft, data.TireSlipAngleFrontRight, data.TireSlipAngleRearRight, data.TireSlipAngleRearLeft },
                     };
                     var display = JsonSerializer.Serialize(values, new JsonSerializerOptions { WriteIndented = true });
                     Logger.Information("{Display}", display);
