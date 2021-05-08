@@ -10,6 +10,8 @@ namespace Chesham.Forza.ForzaHorizon4.Data
 
         public ForzaDataCarDash CarDash { get; set; }
 
+        public ForzaDataHorizonCarDash HorizonCarDash { get; set; }
+
         public ReadOnlyMemory<byte> Remain { get; set; }
     }
 }
