@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net5.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Chesham.Forza.ForzaHorizon4.Data\Chesham.Forza.ForzaHorizon4.Data.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Control\" />
+  </ItemGroup>
+
+</Project>
