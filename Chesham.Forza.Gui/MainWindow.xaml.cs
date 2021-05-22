@@ -16,6 +16,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace Chesham.Forza.Gui
 {
@@ -30,6 +31,19 @@ namespace Chesham.Forza.Gui
         {
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
             InitializeComponent();
+            var gearTextBlinker = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(50),
+                IsEnabled = false,
+                Tag = 0
+            };
+            gearTextBlinker.Tick += (sender, _) =>
+            {
+                var blinker = sender as DispatcherTimer;
+                var opacity = 1 - (int)blinker.Tag;
+                blinker.Tag = opacity;
+                gearText.Opacity = opacity;
+            };
             mainViewModel = new ViewModel.MainViewModel();
             var ipEndPoint = new IPEndPoint(IPAddress.Any, 2059);
             var dataReader = new ForzaDataReader();
@@ -104,6 +118,16 @@ namespace Chesham.Forza.Gui
                             m.recording.Stop();
                             m.zero2HundredTime = m.recording.Elapsed;
                         }
+                        if (data.Power < m.lastPower && data.Accel > 0 && m.isRedlineReached)
+                        {
+                            gearTextBlinker.IsEnabled = true;
+                        }
+                        else if (gearTextBlinker.IsEnabled)
+                        {
+                            gearTextBlinker.IsEnabled = false;
+                            Dispatcher.BeginInvoke(() => gearText.Opacity = 1);
+                        }
+                        m.lastPower = data.Power;
                     }
                     finally
                     {

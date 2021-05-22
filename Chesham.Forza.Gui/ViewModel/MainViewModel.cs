@@ -165,6 +165,12 @@ namespace Chesham.Forza.Gui.ViewModel
             set => SetValue(value);
         }
 
+        public float? lastPower
+        {
+            get => GetValue<float?>();
+            set => SetValue(value);
+        }
+
         public void Reset()
         {
             maxPowerAtRpm = default;

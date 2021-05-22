@@ -47,7 +47,7 @@
                 </StackPanel>
             </GroupBox>
             <WrapPanel Grid.Column="1" HorizontalAlignment="Center">
-                <TextBlock Text="{Binding gear}" FontSize="100" FontFamily="Digital-7 Mono" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding gear}" FontSize="100" FontFamily="Digital-7 Mono" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Name="gearText"/>
                 <TextBlock Text="{Binding speed, StringFormat={}{0,5:##0.0}}" FontSize="36" FontFamily="Digital-7 Mono" FontWeight="Bold" FontStretch="UltraCondensed" HorizontalAlignment="Center" VerticalAlignment="Top"/>
             </WrapPanel>
         </Grid>
