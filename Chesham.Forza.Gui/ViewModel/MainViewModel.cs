@@ -171,6 +171,18 @@ namespace Chesham.Forza.Gui.ViewModel
             set => SetValue(value);
         }
 
+        public int throttle
+        {
+            get => GetValue<int>();
+            set => SetValue(value);
+        }
+
+        public int brake
+        {
+            get => GetValue<int>();
+            set => SetValue(value);
+        }
+
         public void Reset()
         {
             maxPowerAtRpm = default;

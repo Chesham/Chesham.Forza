@@ -17,6 +17,7 @@
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <GroupBox Grid.Column="0" Header="Engine" Padding="5">
@@ -37,8 +38,8 @@
                                 <ProgressBar Height="20" HorizontalAlignment="Stretch" Maximum="{Binding engineMaxRpm}" Value="{Binding engineCurrentRpm}" Foreground="{Binding engineGaugeColor}"/>
                                 <TextBlock Text="{Binding engineCurrentRpm, StringFormat={}{0:N0}}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Grid>
-                            <ProgressBar Margin="0 2 0 0" Height="4" HorizontalAlignment="Stretch" Maximum="{Binding engineMaxPower}" Value="{Binding power}" Foreground="Red"/>
-                            <ProgressBar Height="4" HorizontalAlignment="Stretch" Maximum="{Binding engineMaxTorque}" Value="{Binding torque}" Foreground="Blue"/>
+                            <ProgressBar Margin="0 2 0 0" BorderThickness="0" Height="4" HorizontalAlignment="Stretch" Maximum="{Binding engineMaxPower}" Value="{Binding power}" Foreground="Red"/>
+                            <ProgressBar BorderThickness="0" Height="4" HorizontalAlignment="Stretch" Maximum="{Binding engineMaxTorque}" Value="{Binding torque}" Foreground="Blue"/>
                         </StackPanel>
                         <TextBlock Grid.ColumnSpan="2" Grid.Row="1" Text="{Binding maxPowerRpm}" HorizontalAlignment="Center"/>
                         <TextBlock Grid.ColumnSpan="2" Grid.Row="2" Text="{Binding maxTorqueRpm}" HorizontalAlignment="Center"/>
@@ -46,7 +47,11 @@
                     </Grid>
                 </StackPanel>
             </GroupBox>
-            <WrapPanel Grid.Column="1" HorizontalAlignment="Center">
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <ProgressBar Orientation="Vertical" Width="2" Minimum="0" Maximum="100" BorderThickness="0" Value="{Binding throttle}"/>
+                <ProgressBar Orientation="Vertical" Width="2" Minimum="0" Maximum="100" BorderThickness="0" Foreground="Red" Value="{Binding brake}"/>
+            </StackPanel>
+            <WrapPanel Grid.Column="2" HorizontalAlignment="Center">
                 <TextBlock Text="{Binding gear}" FontSize="100" FontFamily="Digital-7 Mono" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Name="gearText"/>
                 <TextBlock Text="{Binding speed, StringFormat={}{0,5:##0.0}}" FontSize="36" FontFamily="Digital-7 Mono" FontWeight="Bold" FontStretch="UltraCondensed" HorizontalAlignment="Center" VerticalAlignment="Top"/>
             </WrapPanel>

@@ -128,6 +128,8 @@ namespace Chesham.Forza.Gui
                             Dispatcher.BeginInvoke(() => gearText.Opacity = 1);
                         }
                         m.lastPower = data.Power;
+                        m.throttle = (int)Math.Round(data.Accel * 100f / (byte.MaxValue + 1), 0);
+                        m.brake = (int)Math.Round(data.Brake * 100f / (byte.MaxValue + 1), 0);
                     }
                     finally
                     {
